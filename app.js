@@ -154,7 +154,15 @@ function bindEvents() {
   elements.installButton.addEventListener("click", promptInstall);
 
   elements.navButtons.forEach((button) => {
-    button.addEventListener("click", () => showView(button.dataset.view));
+    button.addEventListener("click", () => {
+      if (button.dataset.view === "mainView") {
+        showView("mainView");
+        drawTopic();
+        return;
+      }
+
+      showView(button.dataset.view);
+    });
   });
 
   window.addEventListener("beforeinstallprompt", (event) => {

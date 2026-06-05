@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">雑談お題ガチャ</title>
+  <rect width="512" height="512" rx="96" fill="#11131a"/>
+  <circle cx="256" cy="236" r="142" fill="#45d1b5"/>
+  <path d="M163 268c25 46 68 72 118 72 40 0 75-16 103-49" fill="none" stroke="#11131a" stroke-width="30" stroke-linecap="round"/>
+  <circle cx="207" cy="217" r="20" fill="#11131a"/>
+  <circle cx="307" cy="217" r="20" fill="#11131a"/>
+  <path d="M138 398h236c18 0 32 14 32 32s-14 32-32 32H138c-18 0-32-14-32-32s14-32 32-32Z" fill="#f4bc5f"/>
+  <path d="M173 100 256 42l83 58" fill="none" stroke="#f4bc5f" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

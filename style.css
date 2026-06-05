@@ -50,6 +50,12 @@ button:active {
   transform: translateY(1px);
 }
 
+button:disabled,
+select:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
 button:focus-visible,
 select:focus-visible {
   outline: 3px solid rgba(69, 209, 181, 0.42);
@@ -135,6 +141,23 @@ h2 {
     linear-gradient(145deg, rgba(255, 255, 255, 0.08), transparent),
     var(--surface);
   box-shadow: var(--shadow);
+  transition:
+    border-color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.topic-panel.is-drawing {
+  border-color: rgba(69, 209, 181, 0.64);
+  animation: gacha-shake 720ms ease-in-out infinite;
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, 0.34),
+    0 0 0 1px rgba(69, 209, 181, 0.2),
+    0 0 32px rgba(69, 209, 181, 0.18);
+}
+
+.topic-panel.is-drawing .topic-text {
+  animation: topic-flicker 260ms ease-in-out infinite;
 }
 
 .topic-meta {
@@ -212,6 +235,38 @@ h2 {
   margin: 12px 0 0;
   color: var(--muted);
   font-size: 0.92rem;
+}
+
+@keyframes gacha-shake {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+
+  25% {
+    transform: translateX(-2px) rotate(-0.35deg);
+  }
+
+  50% {
+    transform: translateX(2px) rotate(0.35deg);
+  }
+
+  75% {
+    transform: translateX(-1px) rotate(-0.2deg);
+  }
+}
+
+@keyframes topic-flicker {
+  0%,
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  45% {
+    opacity: 0.72;
+    transform: translateY(2px);
+  }
 }
 
 .view-title-row {

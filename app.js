@@ -114,8 +114,10 @@ const storage = {
 
 let currentTopic = null;
 let deferredInstallPrompt = null;
+let isDrawing = false;
 
 const elements = {
+  topicPanel: document.querySelector(".topic-panel"),
   topicCategory: document.querySelector("#topicCategory"),
   topicDepth: document.querySelector("#topicDepth"),
   topicText: document.querySelector("#topicText"),
@@ -146,7 +148,7 @@ function init() {
 }
 
 function bindEvents() {
-  elements.drawButton.addEventListener("click", drawTopic);
+  elements.drawButton.addEventListener("click", () => drawTopic("", { animate: true }));
   elements.favoriteButton.addEventListener("click", toggleFavorite);
   elements.muteButton.addEventListener("click", muteCurrentTopic);
   elements.categorySelect.addEventListener("change", drawTopic);
@@ -154,7 +156,15 @@ function bindEvents() {
   elements.installButton.addEventListener("click", promptInstall);
 
   elements.navButtons.forEach((button) => {
-    button.addEventListener("click", () => showView(button.dataset.view));
+    button.addEventListener("click", () => {
+      if (button.dataset.view === "mainView") {
+        showView("mainView");
+        drawTopic("", { animate: true });
+        return;
+      }
+
+      showView(button.dataset.view);
+    });
   });
 
   window.addEventListener("beforeinstallprompt", (event) => {
@@ -173,7 +183,9 @@ function fillSelect(select, values) {
   });
 }
 
-function drawTopic(statusMessage = "") {
+function drawTopic(statusMessage = "", options = {}) {
+  if (isDrawing) return;
+
   const category = elements.categorySelect.value;
   const depth = elements.depthSelect.value;
   const mutedIds = new Set(storage.mutedTopics.ids);
@@ -204,7 +216,53 @@ function drawTopic(statusMessage = "") {
     return;
   }
 
-  currentTopic = pickRandom(candidates);
+  if (options.animate) {
+    animateTopicSelection(candidates, statusMessage, usedRecentFallback);
+    return;
+  }
+
+  commitTopic(pickRandom(candidates), statusMessage, usedRecentFallback);
+}
+
+function animateTopicSelection(candidates, statusMessage, usedRecentFallback) {
+  isDrawing = true;
+  setDrawingControls(true);
+  elements.topicPanel.classList.add("is-drawing");
+  elements.statusText.textContent = "抽選中...";
+
+  const steps = 11;
+  let step = 0;
+
+  const tick = () => {
+    const previewTopic = pickRandom(candidates);
+    showTopicPreview(previewTopic);
+    step += 1;
+
+    if (step < steps) {
+      const delay = 48 + step * 18;
+      window.setTimeout(tick, delay);
+      return;
+    }
+
+    window.setTimeout(() => {
+      elements.topicPanel.classList.remove("is-drawing");
+      commitTopic(pickRandom(candidates), statusMessage, usedRecentFallback);
+      setDrawingControls(false);
+      isDrawing = false;
+    }, 180);
+  };
+
+  tick();
+}
+
+function showTopicPreview(topic) {
+  elements.topicCategory.textContent = topic.category;
+  elements.topicDepth.textContent = topic.depth;
+  elements.topicText.textContent = topic.text;
+}
+
+function commitTopic(topic, statusMessage = "", usedRecentFallback = false) {
+  currentTopic = topic;
   addHistory(currentTopic.id);
   renderCurrentTopic();
   renderAllLists();
@@ -212,6 +270,14 @@ function drawTopic(statusMessage = "") {
   elements.statusText.textContent = statusMessage || (usedRecentFallback
     ? "候補が少ないため、直近20件からも再抽選しました。"
     : "");
+}
+
+function setDrawingControls(disabled) {
+  elements.drawButton.disabled = disabled;
+  elements.favoriteButton.disabled = disabled;
+  elements.muteButton.disabled = disabled;
+  elements.categorySelect.disabled = disabled;
+  elements.depthSelect.disabled = disabled;
 }
 
 function pickRandom(items) {
@@ -230,7 +296,7 @@ function renderCurrentTopic() {
 }
 
 function toggleFavorite() {
-  if (!currentTopic) return;
+  if (!currentTopic || isDrawing) return;
 
   if (storage.favorites.includes(currentTopic.id)) {
     storage.favorites = storage.favorites.filter((id) => id !== currentTopic.id);
@@ -246,14 +312,14 @@ function toggleFavorite() {
 }
 
 function muteCurrentTopic() {
-  if (!currentTopic) return;
+  if (!currentTopic || isDrawing) return;
 
   if (!storage.mutedTopics.ids.includes(currentTopic.id)) {
     storage.mutedTopics.ids.push(currentTopic.id);
     saveJson("mutedTopics", storage.mutedTopics);
   }
 
-  drawTopic("今日はこのお題を出さないようにしました。");
+  drawTopic("今日はこのお題を出さないようにしました。", { animate: true });
 }
 
 function addHistory(id) {

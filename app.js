@@ -152,7 +152,6 @@ const TOPICS = [
 ];
 
 const CATEGORIES = ["すべて", ...new Set(TOPICS.map((topic) => topic.category))];
-const DEPTHS = ["すべて", "軽い", "普通", "少し深い"];
 const HISTORY_LIMIT = 60;
 const RECENT_EXCLUDE_LIMIT = 20;
 
@@ -171,8 +170,6 @@ const elements = {
   topicCategory: document.querySelector("#topicCategory"),
   topicDepth: document.querySelector("#topicDepth"),
   topicText: document.querySelector("#topicText"),
-  categorySelect: document.querySelector("#categorySelect"),
-  depthSelect: document.querySelector("#depthSelect"),
   categoryChecks: document.querySelector("#categoryChecks"),
   toggleCategoriesButton: document.querySelector("#toggleCategoriesButton"),
   drawButton: document.querySelector("#drawButton"),
@@ -195,8 +192,6 @@ const elements = {
 init();
 
 function init() {
-  fillSelect(elements.categorySelect, CATEGORIES);
-  fillSelect(elements.depthSelect, DEPTHS);
   renderCategoryChecks();
   bindEvents();
   drawTopic();
@@ -211,8 +206,6 @@ function bindEvents() {
   });
   elements.favoriteButton.addEventListener("click", toggleFavorite);
   elements.muteButton.addEventListener("click", muteCurrentTopic);
-  elements.categorySelect.addEventListener("change", refreshCandidatePreview);
-  elements.depthSelect.addEventListener("change", refreshCandidatePreview);
   elements.toggleCategoriesButton.addEventListener("click", toggleCategoryChecks);
   elements.resetMutedButton.addEventListener("click", resetMutedTopics);
   elements.clearHistoryButton.addEventListener("click", clearHistory);
@@ -220,12 +213,6 @@ function bindEvents() {
 
   elements.navButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      if (button.dataset.view === "mainView") {
-        showView("mainView");
-        drawTopic("", { animate: true });
-        return;
-      }
-
       showView(button.dataset.view);
     });
   });
@@ -234,15 +221,6 @@ function bindEvents() {
     event.preventDefault();
     deferredInstallPrompt = event;
     elements.installButton.hidden = false;
-  });
-}
-
-function fillSelect(select, values) {
-  values.forEach((value) => {
-    const option = document.createElement("option");
-    option.value = value;
-    option.textContent = value;
-    select.append(option);
   });
 }
 
@@ -310,24 +288,17 @@ function refreshCandidatePreview() {
 }
 
 function getCandidatePool(options = {}) {
-  const depth = elements.depthSelect.value;
-  const category = elements.categorySelect.value;
   const selectedCategories = getSelectedCategories();
   const mutedIds = new Set(storage.mutedTopics.ids);
   const recentIds = new Set(storage.history.slice(0, RECENT_EXCLUDE_LIMIT).map((item) => item.id));
   const mode = options.ignoreCategory
     ? "カテゴリ無視"
-    : category === "すべて"
-      ? `横断 ${selectedCategories.length}カテゴリ`
-      : category;
+    : `選択 ${selectedCategories.length}カテゴリ`;
 
   const baseCandidates = TOPICS.filter((topic) => {
     const matchesCategory = options.ignoreCategory
-      || (category === "すべて"
-        ? selectedCategories.includes(topic.category)
-        : topic.category === category);
-    const matchesDepth = depth === "すべて" || topic.depth === depth;
-    return matchesCategory && matchesDepth && !mutedIds.has(topic.id);
+      || selectedCategories.includes(topic.category);
+    return matchesCategory && !mutedIds.has(topic.id);
   });
 
   const freshCandidates = baseCandidates.filter((topic) => !recentIds.has(topic.id));
@@ -420,8 +391,6 @@ function setDrawingControls(disabled) {
   elements.favoriteButton.disabled = disabled;
   elements.muteButton.disabled = disabled;
   elements.resetMutedButton.disabled = disabled || storage.mutedTopics.ids.length === 0;
-  elements.categorySelect.disabled = disabled;
-  elements.depthSelect.disabled = disabled;
   elements.toggleCategoriesButton.disabled = disabled;
   elements.categoryChecks.querySelectorAll("input").forEach((input) => {
     input.disabled = disabled;

@@ -190,24 +190,9 @@ h2 {
   font-weight: 850;
 }
 
-.controls {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 10px;
-  margin-top: 18px;
-}
-
-.controls label {
-  display: grid;
-  gap: 7px;
-  color: var(--muted);
-  font-size: 0.84rem;
-  font-weight: 700;
-}
-
 .category-picker {
   min-width: 0;
-  margin-top: 14px;
+  margin-top: 18px;
   overflow: hidden;
 }
 
@@ -271,11 +256,20 @@ h2 {
   font-size: 0.88rem;
 }
 
-.action-grid {
+.draw-actions,
+.topic-actions {
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;
+}
+
+.draw-actions {
   margin-top: 16px;
+}
+
+.topic-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 10px;
 }
 
 .primary-button {
@@ -468,11 +462,11 @@ h2 {
     padding: 34px;
   }
 
-  .action-grid {
+  .draw-actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .primary-button {
-    grid-column: span 2;
+    min-height: 62px;
   }
 }

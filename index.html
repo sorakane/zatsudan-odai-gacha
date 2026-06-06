@@ -12,7 +12,7 @@
     <link rel="manifest" href="manifest.json" />
     <link rel="apple-touch-icon" href="icon.svg" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style.css?v=12" />
   </head>
   <body>
     <div class="app-shell">
@@ -40,19 +40,9 @@
             </p>
           </article>
 
-          <section class="controls" aria-label="抽選条件">
-            <label>
-              カテゴリ
-              <select id="categorySelect"></select>
-            </label>
-            <label>
-              深さ
-              <select id="depthSelect"></select>
-            </label>
-          </section>
-          <section class="category-picker" aria-label="横断カテゴリ選択">
+          <section class="category-picker" aria-label="カテゴリ選択">
             <div class="category-picker-head">
-              <span>横断カテゴリ</span>
+              <span>カテゴリを選ぶ</span>
               <button class="text-button" id="toggleCategoriesButton" type="button">
                 すべて外す
               </button>
@@ -61,13 +51,15 @@
           </section>
           <p class="pool-text" id="poolText"></p>
 
-          <section class="action-grid" aria-label="お題操作">
+          <section class="draw-actions" aria-label="ガチャ操作">
             <button class="primary-button" id="drawButton" type="button">
-              ガチャを引く
+              選んだカテゴリから引く
             </button>
             <button class="secondary-button" id="anyCategoryButton" type="button">
-              カテゴリ無視でガチャ
+              全カテゴリから引く
             </button>
+          </section>
+          <section class="topic-actions" aria-label="表示中のお題操作">
             <button id="favoriteButton" type="button">お気に入り</button>
             <button id="muteButton" type="button">今日は出さない</button>
           </section>
@@ -104,7 +96,7 @@
 
       <nav class="bottom-nav" aria-label="画面切り替え">
         <button class="nav-button active" type="button" data-view="mainView">
-          ガチャ
+          ガチャに戻る
         </button>
         <button class="nav-button" type="button" data-view="favoritesView">
           お気に入り
@@ -115,6 +107,6 @@
       </nav>
     </div>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=12"></script>
   </body>
 </html>

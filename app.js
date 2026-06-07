@@ -152,6 +152,38 @@ const TOPICS = [
 ];
 
 const CATEGORIES = ["すべて", ...new Set(TOPICS.map((topic) => topic.category))];
+const PRESETS = [
+  {
+    id: "all",
+    label: "全部",
+    categories: CATEGORIES.filter((category) => category !== "すべて")
+  },
+  {
+    id: "party",
+    label: "飲み会",
+    categories: ["どうでもいい話", "懐かしい話", "食べ物", "もしも話", "謎のこだわり"]
+  },
+  {
+    id: "friends",
+    label: "友達",
+    categories: ["どうでもいい話", "懐かしい話", "食べ物", "人間関係", "子どもの頃"]
+  },
+  {
+    id: "first",
+    label: "初対面",
+    categories: ["どうでもいい話", "食べ物", "もしも話", "謎のこだわり"]
+  },
+  {
+    id: "online",
+    label: "オンライン",
+    categories: ["どうでもいい話", "仕事・学校", "人間関係", "もしも話", "ちょっとだけ深い話"]
+  },
+  {
+    id: "soft-deep",
+    label: "ゆる深め",
+    categories: ["懐かしい話", "人間関係", "謎のこだわり", "子どもの頃", "ちょっとだけ深い話"]
+  }
+];
 const HISTORY_LIMIT = 60;
 const RECENT_EXCLUDE_LIMIT = 20;
 
@@ -164,12 +196,17 @@ const storage = {
 let currentTopic = null;
 let deferredInstallPrompt = null;
 let isDrawing = false;
+let activePresetId = "all";
 
 const elements = {
   topicPanel: document.querySelector(".topic-panel"),
   topicCategory: document.querySelector("#topicCategory"),
   topicDepth: document.querySelector("#topicDepth"),
   topicText: document.querySelector("#topicText"),
+  presetOptions: document.querySelector("#presetOptions"),
+  categoryPanelButton: document.querySelector("#categoryPanelButton"),
+  categoryPickerBody: document.querySelector("#categoryPickerBody"),
+  categorySummary: document.querySelector("#categorySummary"),
   categoryChecks: document.querySelector("#categoryChecks"),
   toggleCategoriesButton: document.querySelector("#toggleCategoriesButton"),
   drawButton: document.querySelector("#drawButton"),
@@ -193,6 +230,8 @@ init();
 
 function init() {
   renderCategoryChecks();
+  renderPresetOptions();
+  updateCategoryUi();
   bindEvents();
   drawTopic();
   renderAllLists();
@@ -206,6 +245,7 @@ function bindEvents() {
   });
   elements.favoriteButton.addEventListener("click", toggleFavorite);
   elements.muteButton.addEventListener("click", muteCurrentTopic);
+  elements.categoryPanelButton.addEventListener("click", toggleCategoryPanel);
   elements.toggleCategoriesButton.addEventListener("click", toggleCategoryChecks);
   elements.resetMutedButton.addEventListener("click", resetMutedTopics);
   elements.clearHistoryButton.addEventListener("click", clearHistory);
@@ -234,7 +274,8 @@ function renderCategoryChecks() {
     input.value = category;
     input.checked = true;
     input.addEventListener("change", () => {
-      updateCategoryToggleButton();
+      activePresetId = "custom";
+      updateCategoryUi();
       refreshCandidatePreview();
     });
 
@@ -243,6 +284,18 @@ function renderCategoryChecks() {
 
     label.append(input, text);
     elements.categoryChecks.append(label);
+  });
+}
+
+function renderPresetOptions() {
+  PRESETS.forEach((preset) => {
+    const button = document.createElement("button");
+    button.className = "preset-button";
+    button.type = "button";
+    button.dataset.preset = preset.id;
+    button.textContent = preset.label;
+    button.addEventListener("click", () => applyPreset(preset.id));
+    elements.presetOptions.append(button);
   });
 }
 
@@ -318,6 +371,31 @@ function getSelectedCategories() {
   return selected.length > 0 ? selected : CATEGORIES.filter((category) => category !== "すべて");
 }
 
+function applyPreset(presetId) {
+  if (isDrawing) return;
+
+  const preset = PRESETS.find((item) => item.id === presetId);
+  if (!preset) return;
+
+  const presetCategories = new Set(preset.categories);
+  elements.categoryChecks.querySelectorAll("input").forEach((input) => {
+    input.checked = presetCategories.has(input.value);
+  });
+  activePresetId = presetId;
+  updateCategoryUi();
+  refreshCandidatePreview();
+  elements.statusText.textContent = `${preset.label}向けにカテゴリを切り替えました。`;
+}
+
+function toggleCategoryPanel() {
+  if (isDrawing) return;
+
+  const shouldOpen = elements.categoryPickerBody.hidden;
+  elements.categoryPickerBody.hidden = !shouldOpen;
+  elements.categoryPanelButton.setAttribute("aria-expanded", String(shouldOpen));
+  elements.categoryPanelButton.textContent = shouldOpen ? "閉じる" : "カテゴリを選ぶ";
+}
+
 function toggleCategoryChecks() {
   if (isDrawing) return;
 
@@ -326,15 +404,24 @@ function toggleCategoryChecks() {
   inputs.forEach((input) => {
     input.checked = shouldCheck;
   });
-  updateCategoryToggleButton();
+  activePresetId = "custom";
+  updateCategoryUi();
   refreshCandidatePreview();
 }
 
-function updateCategoryToggleButton() {
+function updateCategoryUi() {
   const inputs = [...elements.categoryChecks.querySelectorAll("input")];
+  const selectedCount = inputs.filter((input) => input.checked).length;
+  const currentPreset = PRESETS.find((preset) => preset.id === activePresetId);
+  const prefix = currentPreset ? currentPreset.label : "カスタム";
+
+  elements.categorySummary.textContent = `${prefix} / ${selectedCount}カテゴリ選択中`;
   elements.toggleCategoriesButton.textContent = inputs.every((input) => input.checked)
     ? "すべて外す"
     : "すべて選ぶ";
+  elements.presetOptions.querySelectorAll(".preset-button").forEach((button) => {
+    button.classList.toggle("active", button.dataset.preset === activePresetId);
+  });
 }
 
 function animateTopicSelection(candidates, statusMessage, usedRecentFallback) {
@@ -391,7 +478,11 @@ function setDrawingControls(disabled) {
   elements.favoriteButton.disabled = disabled;
   elements.muteButton.disabled = disabled;
   elements.resetMutedButton.disabled = disabled || storage.mutedTopics.ids.length === 0;
+  elements.categoryPanelButton.disabled = disabled;
   elements.toggleCategoriesButton.disabled = disabled;
+  elements.presetOptions.querySelectorAll("button").forEach((button) => {
+    button.disabled = disabled;
+  });
   elements.categoryChecks.querySelectorAll("input").forEach((input) => {
     input.disabled = disabled;
   });

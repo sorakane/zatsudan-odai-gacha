@@ -12,7 +12,7 @@
     <link rel="manifest" href="manifest.json" />
     <link rel="apple-touch-icon" href="icon.svg" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=13" />
+    <link rel="stylesheet" href="style.css?v=14" />
   </head>
   <body>
     <div class="app-shell">
@@ -39,14 +39,35 @@
             </p>
           </article>
 
-          <section class="category-picker" aria-label="カテゴリ選択">
+          <section class="preset-picker" aria-label="場面選択">
+            <div class="preset-picker-head">
+              <span>場面</span>
+            </div>
+            <div class="preset-options" id="presetOptions"></div>
+          </section>
+
+          <section class="category-picker is-collapsed" aria-label="カテゴリ選択">
             <div class="category-picker-head">
-              <span>カテゴリを選ぶ</span>
-              <button class="text-button" id="toggleCategoriesButton" type="button">
-                すべて外す
+              <span id="categorySummary">10カテゴリ選択中</span>
+              <button
+                class="text-button"
+                id="categoryPanelButton"
+                type="button"
+                aria-expanded="false"
+                aria-controls="categoryPickerBody"
+              >
+                カテゴリを選ぶ
               </button>
             </div>
-            <div class="category-checks" id="categoryChecks"></div>
+            <div class="category-picker-body" id="categoryPickerBody" hidden>
+              <div class="category-picker-actions">
+                <span>カテゴリ</span>
+                <button class="text-button" id="toggleCategoriesButton" type="button">
+                  すべて外す
+                </button>
+              </div>
+              <div class="category-checks" id="categoryChecks"></div>
+            </div>
           </section>
           <p class="pool-text" id="poolText"></p>
 
@@ -106,6 +127,6 @@
       </nav>
     </div>
 
-    <script src="app.js?v=13"></script>
+    <script src="app.js?v=14"></script>
   </body>
 </html>

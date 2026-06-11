@@ -180,7 +180,7 @@ PWAはService Workerでキャッシュします。
 現在のキャッシュ:
 
 ```js
-const CACHE_NAME = "zatsudan-odai-gacha-v16";
+const CACHE_NAME = "zatsudan-odai-gacha-v19";
 ```
 
 ## 今後の保守メモ

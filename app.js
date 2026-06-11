@@ -280,28 +280,36 @@ function animateTopicSelection(candidates, statusMessage, usedRecentFallback) {
   isDrawing = true;
   setDrawingControls(true);
   elements.topicPanel.classList.add("is-drawing");
-  elements.statusText.textContent = "抽選中...";
+  elements.topicPanel.classList.remove("is-decided");
+  elements.statusText.textContent = "候補をシャッフル中...";
 
-  const steps = 11;
+  const resultTopic = pickRandom(candidates);
+  const previewCandidates = candidates.length > 1
+    ? candidates.filter((topic) => topic.id !== resultTopic.id)
+    : candidates;
+  const steps = 18;
   let step = 0;
+  const delays = [36, 42, 48, 54, 60, 66, 72, 80, 90, 102, 116, 132, 150, 172, 198, 228, 262, 310];
 
   const tick = () => {
-    const previewTopic = pickRandom(candidates);
+    const previewTopic = step === steps - 1
+      ? resultTopic
+      : pickRandom(previewCandidates);
     showTopicPreview(previewTopic);
     step += 1;
 
     if (step < steps) {
-      const delay = 48 + step * 18;
-      window.setTimeout(tick, delay);
+      window.setTimeout(tick, delays[step] || 260);
       return;
     }
 
     window.setTimeout(() => {
       elements.topicPanel.classList.remove("is-drawing");
-      commitTopic(pickRandom(candidates), statusMessage, usedRecentFallback);
+      elements.topicPanel.classList.add("is-decided");
+      commitTopic(resultTopic, statusMessage, usedRecentFallback);
       setDrawingControls(false);
       isDrawing = false;
-    }, 180);
+    }, 260);
   };
 
   tick();

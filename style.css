@@ -121,6 +121,8 @@ h2 {
 }
 
 .topic-panel {
+  position: relative;
+  overflow: hidden;
   min-height: 280px;
   display: grid;
   align-content: center;
@@ -138,17 +140,75 @@ h2 {
     box-shadow 180ms ease;
 }
 
+.topic-panel::before {
+  content: "抽選中";
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 1;
+  min-height: 30px;
+  display: none;
+  align-items: center;
+  border: 1px solid rgba(244, 188, 95, 0.54);
+  border-radius: 999px;
+  padding: 0 11px;
+  background: rgba(244, 188, 95, 0.13);
+  color: var(--accent-2);
+  font-size: 0.82rem;
+  font-weight: 850;
+  letter-spacing: 0;
+}
+
+.topic-panel::after {
+  content: "";
+  position: absolute;
+  inset: -40% -25%;
+  display: none;
+  background:
+    linear-gradient(90deg, transparent 0 44%, rgba(255, 255, 255, 0.16) 50%, transparent 56%),
+    repeating-linear-gradient(
+      90deg,
+      rgba(69, 209, 181, 0),
+      rgba(69, 209, 181, 0) 18px,
+      rgba(69, 209, 181, 0.08) 19px,
+      rgba(69, 209, 181, 0.08) 21px
+    );
+  opacity: 0.72;
+  pointer-events: none;
+}
+
 .topic-panel.is-drawing {
   border-color: rgba(69, 209, 181, 0.64);
-  animation: gacha-shake 720ms ease-in-out infinite;
+  animation: gacha-shake 520ms ease-in-out infinite;
   box-shadow:
     0 20px 48px rgba(0, 0, 0, 0.34),
     0 0 0 1px rgba(69, 209, 181, 0.2),
     0 0 32px rgba(69, 209, 181, 0.18);
 }
 
+.topic-panel.is-drawing::before {
+  display: inline-flex;
+}
+
+.topic-panel.is-drawing::after {
+  display: block;
+  animation: reel-sweep 620ms linear infinite;
+}
+
 .topic-panel.is-drawing .topic-text {
-  animation: topic-flicker 260ms ease-in-out infinite;
+  animation: topic-roll 140ms ease-in-out infinite;
+}
+
+.topic-panel.is-drawing .topic-meta {
+  animation: topic-flicker 220ms ease-in-out infinite;
+}
+
+.topic-panel.is-decided {
+  animation: result-pop 420ms ease-out;
+}
+
+.topic-panel.is-decided .topic-text {
+  animation: result-text-pop 420ms ease-out;
 }
 
 .topic-meta {
@@ -401,6 +461,68 @@ h2 {
   45% {
     opacity: 0.72;
     transform: translateY(2px);
+  }
+}
+
+@keyframes topic-roll {
+  0% {
+    opacity: 0.72;
+    transform: translateY(-5px) scale(0.985);
+    filter: blur(0.4px);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+
+  100% {
+    opacity: 0.76;
+    transform: translateY(5px) scale(0.99);
+    filter: blur(0.3px);
+  }
+}
+
+@keyframes reel-sweep {
+  from {
+    transform: translateX(-18%) rotate(-6deg);
+  }
+
+  to {
+    transform: translateX(18%) rotate(-6deg);
+  }
+}
+
+@keyframes result-pop {
+  0% {
+    transform: scale(0.985);
+    border-color: rgba(244, 188, 95, 0.72);
+  }
+
+  55% {
+    transform: scale(1.018);
+    border-color: rgba(244, 188, 95, 0.92);
+    box-shadow:
+      0 20px 48px rgba(0, 0, 0, 0.34),
+      0 0 0 1px rgba(244, 188, 95, 0.28),
+      0 0 34px rgba(244, 188, 95, 0.18);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes result-text-pop {
+  0% {
+    opacity: 0.78;
+    transform: translateY(8px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

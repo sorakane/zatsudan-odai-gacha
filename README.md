@@ -1,23 +1,90 @@
 # 雑談お題ガチャ
 
-スマホのブラウザで使える、ローカル完結のPWAです。飲み会、友人との雑談、オンライン通話などで、重すぎず話が広がるお題をランダム表示します。
+飲み会、友人との雑談、オンライン通話などで使える、雑談のお題ガチャPWAです。
+正解のない軽めの話題をランダムに表示し、会話の入口を作ることを目的にしています。
 
-## 機能
+公開URL:
 
-- ランダムに雑談のお題を表示
-- カテゴリ選択
-- 深さ選択
-- 複数カテゴリの横断選択
-- カテゴリを無視したガチャ
-- お気に入り保存
-- 最近出たお題の履歴表示
+```text
+https://sorakane.github.io/zatsudan-odai-gacha/
+```
+
+## 現在の機能
+
+- 雑談のお題をランダム表示
+- ガチャ演出つきの抽選
+- 場面プリセット
+  - 全部
+  - 飲み会
+  - 友達
+  - 初対面
+  - オンライン
+  - 世代差
+  - ゆる深め
+- カテゴリの複数選択
+- カテゴリ欄の開閉
+- 全カテゴリから引くボタン
+- お気に入り登録
+- お気に入り一覧
+- 最近出たお題の履歴
 - 直近20件は再表示されにくい抽選
-- 「今日は出さない」で当日中だけ非表示
+- 今日は出さない
 - 今日の非表示リセット
 - 履歴クリア
-- 現在条件での候補件数表示
-- `localStorage` に `favorites`、`history`、`mutedTopics` を保存
-- `manifest.json` と `service-worker.js` によるPWA対応
+- 候補件数表示
+- PWA対応
+  - `manifest.json`
+  - `service-worker.js`
+  - ホーム画面追加
+  - オフラインキャッシュ
+
+## お題データ
+
+お題は `app.js` の `TOPICS` 配列に入っています。
+
+現在の件数:
+
+```text
+210件
+```
+
+カテゴリ:
+
+- どうでもいい話
+- 懐かしい話
+- 食べ物
+- 仕事・学校
+- 人間関係
+- お金
+- もしも話
+- 謎のこだわり
+- 子どもの頃
+- ちょっとだけ深い話
+- ジェネレーションギャップ
+
+各お題の形式:
+
+```js
+{
+  id: 1,
+  text: "なぜか捨てられない小物ってありますか？",
+  category: "どうでもいい話",
+  depth: "軽い"
+}
+```
+
+`depth` はデータとして残していますが、現在の画面では深さ選択UIは使っていません。
+
+## 保存データ
+
+ブラウザの `localStorage` に保存します。
+サーバー、外部API、ログイン、データベースは使っていません。
+
+保存キー:
+
+- `favorites`
+- `history`
+- `mutedTopics`
 
 ## ファイル構成
 
@@ -40,7 +107,7 @@ Service Workerは `file://` では動かないため、ローカルHTTPサーバ
 python3 -m http.server 8080
 ```
 
-ブラウザで次を開きます。
+ブラウザで開きます。
 
 ```text
 http://localhost:8080/
@@ -56,43 +123,66 @@ http://<PCのローカルIP>:8080/
 
 ### iPhone / Safari
 
-1. SafariでアプリURLを開く
+1. Safariで公開URLを開く
 2. 共有ボタンを押す
 3. 「ホーム画面に追加」を選ぶ
 
 ### Android / Chrome
 
-1. ChromeでアプリURLを開く
+1. Chromeで公開URLを開く
 2. メニューを開く
 3. 「ホーム画面に追加」または「アプリをインストール」を選ぶ
 
-## GitHub Pagesに置く方法
+## GitHub Pagesで公開する方法
 
-1. GitHubで新しいリポジトリを作る
-2. このフォルダのファイルをリポジトリに追加してpushする
-3. GitHubのリポジトリ画面で `Settings` を開く
-4. `Pages` を開く
-5. `Build and deployment` の `Source` を `Deploy from a branch` にする
-6. `Branch` を `main`、フォルダを `/root` にして保存する
+このリポジトリはGitHub Pagesで公開できます。
 
-公開URLは次のような形式になります。
+設定:
+
+```text
+Settings > Pages
+Source: Deploy from a branch
+Branch: main
+Folder: /root
+```
+
+公開URLの形式:
 
 ```text
 https://<GitHubユーザー名>.github.io/<リポジトリ名>/
 ```
 
-## Vercelに置く方法
+## 反映手順
 
-1. Vercelにログインする
-2. `Add New...` から `Project` を選ぶ
-3. GitHubリポジトリをインポートする
-4. Framework Presetは `Other` のままでよい
-5. Build Commandは空、Output Directoryも空のままデプロイする
+変更後は通常のGit操作で反映します。
 
-静的ファイルだけなので、ビルド設定は不要です。
+```bash
+git status
+git add index.html style.css app.js manifest.json service-worker.js README.md
+git commit -m "Update app"
+git push origin main
+```
 
-## 注意
+GitHub Pagesは反映まで数十秒かかることがあります。
 
-- 外部API、ログイン、サーバー、データベースは使っていません。
-- お題データ150件は `app.js` 内の `TOPICS` 配列に入っています。
-- PWAとしてのキャッシュ更新が反映されにくい時は、ブラウザのサイトデータを削除するか、`service-worker.js` の `CACHE_NAME` を変更してください。
+## キャッシュ更新
+
+PWAはService Workerでキャッシュします。
+公開後に古い表示が残る場合は、次を更新します。
+
+- `service-worker.js` の `CACHE_NAME`
+- `index.html` の `style.css?v=...`
+- `index.html` の `app.js?v=...`
+- `service-worker.js` の `APP_SHELL` 内のCSS/JS参照
+
+現在のキャッシュ:
+
+```js
+const CACHE_NAME = "zatsudan-odai-gacha-v15";
+```
+
+## 今後の保守メモ
+
+- お題がさらに増える場合は、`TOPICS` を `topics.js` または `topics.json` に分離すると管理しやすいです。
+- ジェネレーションギャップ系のお題は、年齢いじりにならないよう「何歳？」より「どの頃？」寄りの文面にすると安全です。
+- 全カテゴリ抽選でカテゴリごとの件数差が気になる場合は、カテゴリ単位で均等抽選する実装に変更できます。

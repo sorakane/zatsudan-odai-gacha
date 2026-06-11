@@ -40,7 +40,7 @@ https://sorakane.github.io/zatsudan-odai-gacha/
 
 ## お題データ
 
-お題は `app.js` の `TOPICS` 配列に入っています。
+お題は `topics.js` の `TOPICS` 配列に入っています。
 
 現在の件数:
 
@@ -92,6 +92,7 @@ https://sorakane.github.io/zatsudan-odai-gacha/
 .
 ├── index.html
 ├── style.css
+├── topics.js
 ├── app.js
 ├── manifest.json
 ├── service-worker.js
@@ -158,7 +159,7 @@ https://<GitHubユーザー名>.github.io/<リポジトリ名>/
 
 ```bash
 git status
-git add index.html style.css app.js manifest.json service-worker.js README.md
+git add index.html style.css topics.js app.js manifest.json service-worker.js README.md
 git commit -m "Update app"
 git push origin main
 ```
@@ -172,17 +173,18 @@ PWAはService Workerでキャッシュします。
 
 - `service-worker.js` の `CACHE_NAME`
 - `index.html` の `style.css?v=...`
+- `index.html` の `topics.js?v=...`
 - `index.html` の `app.js?v=...`
 - `service-worker.js` の `APP_SHELL` 内のCSS/JS参照
 
 現在のキャッシュ:
 
 ```js
-const CACHE_NAME = "zatsudan-odai-gacha-v15";
+const CACHE_NAME = "zatsudan-odai-gacha-v16";
 ```
 
 ## 今後の保守メモ
 
-- お題がさらに増える場合は、`TOPICS` を `topics.js` または `topics.json` に分離すると管理しやすいです。
+- お題を増やす場合は、`topics.js` の `TOPICS` 配列に追記します。
 - ジェネレーションギャップ系のお題は、年齢いじりにならないよう「何歳？」より「どの頃？」寄りの文面にすると安全です。
 - 全カテゴリ抽選でカテゴリごとの件数差が気になる場合は、カテゴリ単位で均等抽選する実装に変更できます。

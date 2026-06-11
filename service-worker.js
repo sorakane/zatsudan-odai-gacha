@@ -1,9 +1,10 @@
-const CACHE_NAME = "zatsudan-odai-gacha-v15";
+const CACHE_NAME = "zatsudan-odai-gacha-v16";
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./style.css?v=15",
-  "./app.js?v=15",
+  "./style.css?v=16",
+  "./topics.js?v=16",
+  "./app.js?v=16",
   "./manifest.json",
   "./icon.svg"
 ];
